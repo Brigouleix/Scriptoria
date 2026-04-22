@@ -85,19 +85,19 @@ export default async function StepsOverviewPage({ params }: { params: Promise<{ 
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-stone-500 text-sm flex-wrap">
-        <Link href="/dashboard" className="hover:text-stone-300 transition-colors">{tp('breadcrumb')}</Link>
+      <div className="flex items-center gap-2 text-stone-400 text-sm flex-wrap">
+        <Link href="/dashboard" className="hover:text-stone-200 transition-colors">{tp('breadcrumb')}</Link>
         <ChevronRight size={14} />
-        <Link href={`/project/${id}`} className="hover:text-stone-300 transition-colors">{project.title}</Link>
+        <Link href={`/project/${id}`} className="hover:text-stone-200 transition-colors">{project.title}</Link>
         <ChevronRight size={14} />
-        <span className="text-stone-300">Méthode Snowflake</span>
+        <span className="text-stone-200">Méthode Snowflake</span>
       </div>
 
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold">{project.title}</h1>
-        {project.genre && <p className="text-stone-400 text-sm">{project.genre}</p>}
-        <p className="text-stone-500 text-sm mt-1">{completedCount} / {STEPS_META.length} étapes complétées</p>
+        {project.genre && <p className="text-stone-300 text-sm">{project.genre}</p>}
+        <p className="text-stone-400 text-sm mt-1">{completedCount} / {STEPS_META.length} étapes complétées</p>
       </div>
 
       {/* Steps cards */}
@@ -112,22 +112,21 @@ export default async function StepsOverviewPage({ params }: { params: Promise<{ 
               key={step.number}
               href={`/project/${id}/step/${step.number}`}
               className={`group relative border rounded-2xl p-6 flex flex-col gap-3 transition-all duration-200
-                hover:scale-[1.01] hover:shadow-xl hover:shadow-black/20
+                hover:scale-[1.01] hover:shadow-xl hover:shadow-black/20 bg-stone-900
                 ${isDone ? step.border : 'border-stone-800'}
-                bg-gradient-to-br ${isDone ? step.color : 'from-stone-900/60 to-stone-900/20'}
               `}
             >
               {/* Step number + status */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${isDone ? step.dot : 'bg-stone-600'}`} />
-                  <span className="text-xs font-mono text-stone-500 uppercase tracking-wider">
+                  <span className="text-xs font-mono text-stone-400 uppercase tracking-wider">
                     Étape {step.number}
                   </span>
                 </div>
                 {isDone
                   ? <CheckCircle2 size={18} className="text-amber-400" />
-                  : <Circle size={18} className="text-stone-600 group-hover:text-stone-400 transition-colors" />
+                  : <Circle size={18} className="text-stone-500 group-hover:text-stone-300 transition-colors" />
                 }
               </div>
 
@@ -140,12 +139,12 @@ export default async function StepsOverviewPage({ params }: { params: Promise<{ 
                   &ldquo;{preview}&rdquo;
                 </p>
               ) : (
-                <p className="text-stone-500 text-sm leading-relaxed">{t(step.descKey)}</p>
+                <p className="text-stone-400 text-sm leading-relaxed">{t(step.descKey)}</p>
               )}
 
               {/* CTA */}
               <div className="flex items-center gap-1.5 text-xs font-medium mt-1
-                text-stone-500 group-hover:text-amber-400 transition-colors">
+                text-stone-400 group-hover:text-amber-400 transition-colors">
                 {isDone ? 'Modifier' : 'Commencer'}
                 <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
               </div>

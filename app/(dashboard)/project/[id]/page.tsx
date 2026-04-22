@@ -54,12 +54,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     <div className="flex flex-col gap-8 max-w-2xl">
       {/* Header */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-stone-500 text-sm">
-          <Link href="/dashboard" className="hover:text-stone-300 transition-colors">
+        <div className="flex items-center gap-2 text-stone-400 text-sm">
+          <Link href="/dashboard" className="hover:text-stone-200 transition-colors">
             Mes projets
           </Link>
           <ChevronRight size={14} />
-          <span className="text-stone-300">{project.title}</span>
+          <span className="text-stone-200">{project.title}</span>
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -73,14 +73,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
               )}
             </div>
             {project.genre && (
-              <span className="text-sm text-stone-400">{project.genre}</span>
+              <span className="text-sm text-stone-300">{project.genre}</span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Link
               href={`/project/${id}/write`}
               title="Ouvrir l'éditeur"
-              className="flex items-center gap-1.5 border border-stone-700 hover:border-amber-500 text-stone-400 hover:text-amber-400 px-3 py-1.5 rounded-lg text-sm transition-colors"
+              className="flex items-center gap-1.5 border border-stone-700 hover:border-amber-500 text-stone-300 hover:text-amber-400 px-3 py-1.5 rounded-lg text-sm transition-colors"
             >
               <PenLine size={15} />
               Écrire
@@ -93,11 +93,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       {/* Progress bar */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2 text-stone-400">
+          <div className="flex items-center gap-2 text-stone-300">
             <Snowflake size={14} className="text-amber-400" />
             Méthode Snowflake
           </div>
-          <span className="text-stone-400">{progress}%</span>
+          <span className="text-stone-300">{progress}%</span>
         </div>
         <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
           <div
@@ -115,27 +115,27 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <Link
               key={step.number}
               href={`/project/${id}/steps`}
-              className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900/50 rounded-xl p-5 flex items-center gap-4 transition-colors"
+              className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900 rounded-xl p-5 flex items-center gap-4 transition-colors"
             >
               <div className="shrink-0">
                 {isDone ? (
                   <CheckCircle2 className="text-amber-400" size={22} />
                 ) : (
-                  <Circle className="text-stone-600 group-hover:text-stone-400 transition-colors" size={22} />
+                  <Circle className="text-stone-500 group-hover:text-stone-300 transition-colors" size={22} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-stone-500 font-mono">
+                  <span className="text-xs text-stone-400 font-mono">
                     Étape {step.number}
                   </span>
                 </div>
                 <p className="font-semibold text-stone-100">{step.label}</p>
-                <p className="text-stone-400 text-sm mt-0.5">{step.description}</p>
+                <p className="text-stone-300 text-sm mt-0.5">{step.description}</p>
               </div>
               <ChevronRight
                 size={16}
-                className="text-stone-600 group-hover:text-amber-400 shrink-0 transition-colors"
+                className="text-stone-500 group-hover:text-amber-400 shrink-0 transition-colors"
               />
             </Link>
           )
@@ -146,16 +146,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       <div className="border-t border-stone-800 pt-6">
         <Link
           href={`/project/${id}/documents`}
-          className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900/50 rounded-xl p-5 flex items-center gap-4 transition-colors"
+          className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900 rounded-xl p-5 flex items-center gap-4 transition-colors"
         >
           <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
             <FolderOpen className="text-amber-400" size={16} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-stone-100">Documents</p>
-            <p className="text-stone-400 text-sm mt-0.5">Images, PDF, DOC, TXT organisés par chapitre</p>
+            <p className="text-stone-300 text-sm mt-0.5">Images, PDF, DOC, TXT organisés par chapitre</p>
           </div>
-          <ChevronRight size={16} className="text-stone-600 group-hover:text-amber-400 shrink-0 transition-colors" />
+          <ChevronRight size={16} className="text-stone-500 group-hover:text-amber-400 shrink-0 transition-colors" />
         </Link>
       </div>
     </div>

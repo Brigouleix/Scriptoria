@@ -29,17 +29,17 @@ export default function Navbar({ user }: { user: User }) {
       <div className="flex items-center gap-4">
         <Link
           href="/people"
-          className="flex items-center gap-1.5 text-stone-400 hover:text-stone-100 text-sm transition-colors"
+          className="flex items-center gap-1.5 text-stone-300 hover:text-stone-100 text-sm transition-colors"
         >
           <Users size={15} />
           <span className="hidden sm:block">Membres</span>
         </Link>
         <ThemeSwitcher />
         <LocaleSwitcher />
-        <span className="text-stone-500 text-sm hidden sm:block">{user.email}</span>
+        <span className="text-stone-400 text-sm hidden sm:block">{user.email}</span>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 text-stone-400 hover:text-stone-100 text-sm transition-colors"
+          className="flex items-center gap-1.5 text-stone-300 hover:text-stone-100 text-sm transition-colors"
         >
           <LogOut size={15} />
           {t('logout')}
