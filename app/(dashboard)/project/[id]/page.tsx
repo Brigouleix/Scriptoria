@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, Snowflake, CheckCircle2, Circle } from 'lucide-react'
+import { ChevronRight, Snowflake, CheckCircle2, Circle, FolderOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import DeleteProjectButton from '@/components/DeleteProjectButton'
 
@@ -129,6 +129,23 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             </Link>
           )
         })}
+      </div>
+
+      {/* Documents section */}
+      <div className="border-t border-stone-800 pt-6">
+        <Link
+          href={`/project/${id}/documents`}
+          className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900/50 rounded-xl p-5 flex items-center gap-4 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+            <FolderOpen className="text-amber-400" size={16} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-stone-100">Documents</p>
+            <p className="text-stone-400 text-sm mt-0.5">Images, PDF, DOC, TXT organisés par chapitre</p>
+          </div>
+          <ChevronRight size={16} className="text-stone-600 group-hover:text-amber-400 shrink-0 transition-colors" />
+        </Link>
       </div>
     </div>
   )
