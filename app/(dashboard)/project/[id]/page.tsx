@@ -1,30 +1,21 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, Snowflake, CheckCircle2, Circle, FolderOpen } from 'lucide-react'
+import { ChevronRight, Snowflake, CheckCircle2, Circle, FolderOpen, PenLine, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import DeleteProjectButton from '@/components/DeleteProjectButton'
 
-const STEPS = [
-  {
-    number: 1,
-    label: 'La Prémisse',
-    description: 'Une phrase qui résume tout votre roman.',
-  },
-  {
-    number: 2,
-    label: 'Le Résumé',
-    description: 'Un paragraphe : setup, 3 conflits, résolution.',
-  },
-  {
-    number: 3,
-    label: 'Les Personnages',
-    description: 'Vos personnages principaux et leurs arcs narratifs.',
-  },
-  {
-    number: 4,
-    label: 'Le Synopsis',
-    description: 'Un synopsis d\'une page qui détaille l\'intrigue.',
-  },
+const STEPS_NOVEL = [
+  { number: 1, label: 'La Prémisse', description: 'Une phrase qui résume tout votre roman.' },
+  { number: 2, label: 'Le Résumé', description: 'Un paragraphe : setup, 3 conflits, résolution.' },
+  { number: 3, label: 'Les Personnages', description: 'Vos personnages principaux et leurs arcs narratifs.' },
+  { number: 4, label: 'Le Synopsis', description: "Un synopsis d'une page qui détaille l'intrigue." },
+]
+
+const STEPS_TEAM = [
+  { number: 1, label: 'La Prémisse', description: 'En une phrase, résumez l\'objectif du projet.' },
+  { number: 2, label: 'Le Résumé', description: 'Contexte, enjeux, jalons et résultat attendu.' },
+  { number: 3, label: "L'Équipe", description: 'Les membres de l\'équipe et leurs rôles.' },
+  { number: 4, label: 'Le Synopsis', description: 'Une description complète du projet.' },
 ]
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
@@ -55,6 +46,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       .map((s) => s.step_number)
   )
 
+  const isTeam = project.project_type === 'team'
+  const STEPS = isTeam ? STEPS_TEAM : STEPS_NOVEL
   const progress = Math.round((completedSteps.size / STEPS.length) * 100)
 
   return (
@@ -70,12 +63,30 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{project.title}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">{project.title}</h1>
+              {isTeam && (
+                <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                  <Users size={11} />
+                  Équipe
+                </span>
+              )}
+            </div>
             {project.genre && (
               <span className="text-sm text-stone-400">{project.genre}</span>
             )}
           </div>
-          <DeleteProjectButton projectId={id} />
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/project/${id}/write`}
+              title="Ouvrir l'éditeur"
+              className="flex items-center gap-1.5 border border-stone-700 hover:border-amber-500 text-stone-400 hover:text-amber-400 px-3 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              <PenLine size={15} />
+              Écrire
+            </Link>
+            <DeleteProjectButton projectId={id} />
+          </div>
         </div>
       </div>
 
@@ -103,7 +114,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           return (
             <Link
               key={step.number}
-              href={`/project/${id}/step/${step.number}`}
+              href={`/project/${id}/steps`}
               className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900/50 rounded-xl p-5 flex items-center gap-4 transition-colors"
             >
               <div className="shrink-0">

@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FileText, FileImage, File, Trash2, Loader2, Download } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import ImageThumbnail from '@/components/ImageThumbnail'
+import DocumentViewer from '@/components/DocumentViewer'
 
 interface Document {
   id: string
@@ -36,7 +38,9 @@ function FileIcon({ mime }: { mime: string }) {
 
 function FileCard({ doc, userId }: { doc: Document; userId: string }) {
   const router = useRouter()
+  const t = useTranslations('common')
   const [deleting, setDeleting] = useState(false)
+  const [viewing, setViewing] = useState(false)
   const isImage = doc.mime_type.startsWith('image/')
 
   async function handleDelete() {
@@ -62,32 +66,37 @@ function FileCard({ doc, userId }: { doc: Document; userId: string }) {
   }
 
   return (
-    <div className="group border border-stone-800 hover:border-stone-700 bg-stone-900/50 rounded-xl overflow-hidden flex flex-col transition-colors">
-      {/* Thumbnail area */}
-      <div className="h-36 bg-stone-900 flex items-center justify-center relative">
-        {isImage ? (
-          <ImageThumbnail storagePath={doc.storage_path} name={doc.name} />
-        ) : (
-          <FileIcon mime={doc.mime_type} />
-        )}
-      </div>
+    <>
+      {viewing && <DocumentViewer doc={doc} onClose={() => setViewing(false)} />}
+      <div className="group border border-stone-800 hover:border-stone-700 bg-stone-900/50 rounded-xl overflow-hidden flex flex-col transition-colors">
+        {/* Thumbnail area — cliquable */}
+        <div
+          className="h-36 bg-stone-900 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={() => setViewing(true)}
+        >
+          {isImage ? (
+            <ImageThumbnail storagePath={doc.storage_path} name={doc.name} />
+          ) : (
+            <FileIcon mime={doc.mime_type} />
+          )}
+        </div>
 
-      {/* Info */}
-      <div className="p-3 flex flex-col gap-1 flex-1">
-        <p className="text-sm font-medium text-stone-200 truncate" title={doc.name}>
-          {doc.name}
-        </p>
-        <p className="text-xs text-stone-500">{formatSize(doc.size_bytes)}</p>
-      </div>
+        {/* Info */}
+        <div className="p-3 flex flex-col gap-1 flex-1 cursor-pointer" onClick={() => setViewing(true)}>
+          <p className="text-sm font-medium text-stone-200 truncate" title={doc.name}>
+            {doc.name}
+          </p>
+          <p className="text-xs text-stone-500">{formatSize(doc.size_bytes)}</p>
+        </div>
 
-      {/* Actions */}
+        {/* Actions */}
       <div className="px-3 pb-3 flex items-center gap-2">
         <button
           onClick={handleDownload}
           className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-amber-400 transition-colors"
         >
           <Download size={12} />
-          Télécharger
+          {t('download')}
         </button>
         <button
           onClick={handleDelete}
@@ -98,14 +107,17 @@ function FileCard({ doc, userId }: { doc: Document; userId: string }) {
         </button>
       </div>
     </div>
+    </>
   )
 }
 
 export default function FileGrid({ documents, userId, chapterId }: Props) {
+  const t = useTranslations('documents')
+
   if (documents.length === 0) {
     return (
       <div className="border border-dashed border-stone-700 rounded-xl p-12 text-center text-stone-500 text-sm">
-        Aucun fichier dans ce chapitre. Glissez des fichiers ci-dessus pour commencer.
+        {t('no_files')}
       </div>
     )
   }

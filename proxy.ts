@@ -24,18 +24,14 @@ export async function proxy(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-
   const { pathname } = request.nextUrl
 
-  // Routes protégées — redirige vers /login si non connecté
   if (!user && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
   if (!user && pathname.startsWith('/project')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
-
-  // Si connecté, redirige /login et /register vers le dashboard
   if (user && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

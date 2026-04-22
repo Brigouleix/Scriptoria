@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Plus, BookOpen, ChevronRight } from 'lucide-react'
+import { Plus, BookOpen, ChevronRight, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import NewProjectButton from '@/components/NewProjectButton'
 
@@ -11,7 +11,7 @@ export default async function DashboardPage() {
 
   const { data: projects } = await supabase
     .from('projects')
-    .select('id, title, genre, created_at, updated_at')
+    .select('id, title, genre, project_type, created_at, updated_at')
     .order('updated_at', { ascending: false })
 
   return (
@@ -51,7 +51,10 @@ export default async function DashboardPage() {
             >
               <div className="flex items-start justify-between">
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <BookOpen className="text-amber-400" size={16} />
+                  {project.project_type === 'team'
+                    ? <Users className="text-amber-400" size={16} />
+                    : <BookOpen className="text-amber-400" size={16} />
+                  }
                 </div>
                 <ChevronRight
                   size={16}

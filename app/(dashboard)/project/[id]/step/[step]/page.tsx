@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import StepEditor from '@/components/StepEditor'
+import TeamMembersEditor from '@/components/TeamMembersEditor'
 
 const STEPS_CONFIG = {
   1: {
@@ -70,7 +71,7 @@ export default async function StepPage({
 
   const { data: project } = await supabase
     .from('projects')
-    .select('id, title')
+    .select('id, title, project_type')
     .eq('id', id)
     .single()
 
@@ -83,7 +84,9 @@ export default async function StepPage({
     .eq('step_number', stepNum)
     .single()
 
+  const isTeam = project.project_type === 'team'
   const config = STEPS_CONFIG[stepNum]
+  const isTeamMembersStep = isTeam && stepNum === 3
   const prevStep = stepNum > 1 ? stepNum - 1 : null
   const nextStep = stepNum < 4 ? stepNum + 1 : null
 
@@ -107,20 +110,32 @@ export default async function StepPage({
         <span className="text-xs text-amber-400 font-mono font-medium uppercase tracking-wider">
           Étape {stepNum} / 4
         </span>
-        <h1 className="text-2xl font-bold">{config.label}</h1>
-        <p className="text-stone-400 leading-relaxed">{config.description}</p>
-        <div className="bg-amber-500/5 border border-amber-500/15 rounded-lg px-4 py-3 text-sm text-stone-400 leading-relaxed">
-          💡 {config.hint}
-        </div>
+        <h1 className="text-2xl font-bold">
+          {isTeamMembersStep ? "L'Équipe" : config.label}
+        </h1>
+        <p className="text-stone-400 leading-relaxed">
+          {isTeamMembersStep
+            ? "Ajoutez les membres de votre équipe et définissez leur rôle dans ce projet."
+            : config.description}
+        </p>
+        {!isTeamMembersStep && (
+          <div className="bg-amber-500/5 border border-amber-500/15 rounded-lg px-4 py-3 text-sm text-stone-400 leading-relaxed">
+            💡 {config.hint}
+          </div>
+        )}
       </div>
 
       {/* Editor */}
-      <StepEditor
-        projectId={id}
-        stepNumber={stepNum}
-        fields={config.fields as unknown as Array<{ key: string; label: string; placeholder: string; type: string; rows?: number }>}
-        initialContent={(stepData?.content ?? {}) as Record<string, string>}
-      />
+      {isTeamMembersStep ? (
+        <TeamMembersEditor projectId={id} />
+      ) : (
+        <StepEditor
+          projectId={id}
+          stepNumber={stepNum}
+          fields={config.fields as unknown as Array<{ key: string; label: string; placeholder: string; type: string; rows?: number }>}
+          initialContent={(stepData?.content ?? {}) as Record<string, string>}
+        />
+      )}
 
       {/* Navigation */}
       <div className="flex items-center justify-between pt-4 border-t border-stone-800">
