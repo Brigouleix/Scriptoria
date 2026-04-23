@@ -13,6 +13,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Headers requis pour Transformers.js (WASM + SharedArrayBuffer)
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+          { key: 'Cross-Origin-Opener-Policy',   value: 'same-origin' },
+        ],
+      },
+    ]
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, ChevronDown } from 'lucide-react'
+import { LayoutDashboard, Users, ChevronDown, Cpu } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
@@ -109,6 +109,19 @@ export default function LeftNav() {
           </div>
         )}
       </div>
+
+      {/* ── Résumé IA ── */}
+      <Link
+        href="/summarizer"
+        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+          pathname === '/summarizer'
+            ? 'bg-amber-500/10 text-amber-500'
+            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'
+        }`}
+      >
+        <Cpu size={16} />
+        Résumé IA
+      </Link>
 
       {/* ── Personnages / Membres ── */}
       <div>
