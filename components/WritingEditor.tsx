@@ -78,17 +78,16 @@ export default function WritingEditor({ projectId, userId, chapters }: Props) {
     if (!editor || !selectedChapter) return
     setSaving(true)
 
-    const html = editor.getHTML()
-    const blob = new Blob([html], { type: 'text/html' })
-    const filename = `${documentTitle.trim() || 'note'}.html`
-    const ext = 'html'
-    const path = `${userId}/${projectId}/${selectedChapter}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+    const text = editor.getText()
+    const blob = new Blob([text], { type: 'text/plain' })
+    const filename = `${documentTitle.trim() || 'note'}.txt`
+    const path = `${userId}/${projectId}/${selectedChapter}/${Date.now()}_${Math.random().toString(36).slice(2)}.txt`
 
     const supabase = createClient()
 
     const { error: storageError } = await supabase.storage
       .from('documents')
-      .upload(path, blob, { contentType: 'text/html' })
+      .upload(path, blob, { contentType: 'text/plain' })
 
     if (storageError) {
       setSaving(false)
@@ -100,7 +99,7 @@ export default function WritingEditor({ projectId, userId, chapters }: Props) {
       project_id: projectId,
       name: filename,
       storage_path: path,
-      mime_type: 'text/html',
+      mime_type: 'text/plain',
       size_bytes: blob.size,
     })
 
