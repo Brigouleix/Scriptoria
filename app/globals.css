@@ -17,7 +17,7 @@
   --bg-base: #0c0a09;
   --bg-card: #1c1917;
   --bg-card-hover: #242019;
-  --bg-input: #1c1917;
+  --bg-input: #292524;
   --border: #44403c;
   --border-hover: rgba(245, 158, 11, 0.4);
   --text-primary: #f5f5f4;
@@ -76,6 +76,27 @@ body {
   color: var(--text-muted);
   pointer-events: none;
   height: 0;
+}
+
+/* === GLOBAL INPUT STYLES (theme-aware) === */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+select option {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
 }
 
 /* Retro font feel */

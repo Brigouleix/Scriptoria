@@ -73,7 +73,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
       {/* ── LEFT: project content ── */}
       <div className="flex flex-col gap-8">
@@ -178,7 +178,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* ── RIGHT: persona wheel ── */}
-      <div className="lg:sticky lg:top-8">
+      <div className="flex items-end">
         <PersonaWheel
           nodes={wheelNodes}
           centerLabel={project.title}
