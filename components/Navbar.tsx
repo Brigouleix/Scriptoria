@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BookOpen, LogOut, Users } from 'lucide-react'
+import { BookOpen, LogOut, Shield } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import LocaleSwitcher from '@/components/LocaleSwitcher'
 import ThemeSwitcher from '@/components/ThemeSwitcher'
 import type { User } from '@supabase/supabase-js'
+
+const ADMIN_EMAIL = 'antoine.brigouleix@gmail.com'
 
 export default function Navbar({ user }: { user: User }) {
   const router = useRouter()
@@ -29,6 +31,16 @@ export default function Navbar({ user }: { user: User }) {
       <div className="flex items-center gap-4">
         <ThemeSwitcher />
         <LocaleSwitcher />
+        {user.email === ADMIN_EMAIL && (
+          <Link
+            href="/admin"
+            title="Admin"
+            className="flex items-center gap-1 text-amber-500 hover:text-amber-400 text-xs font-semibold transition-colors"
+          >
+            <Shield size={14} />
+            <span className="hidden sm:inline">Admin</span>
+          </Link>
+        )}
         <span className="text-[var(--text-muted)] text-sm hidden sm:block">{user.email}</span>
         <button
           onClick={handleLogout}
