@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Loader2, X } from 'lucide-react'
+import { Plus, Loader2, X, BookOpen, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const GENRES = [
@@ -10,11 +10,14 @@ const GENRES = [
   'Romance', 'Horreur', 'Historique', 'Jeunesse', 'Autre',
 ]
 
+type ProjectType = 'novel' | 'team'
+
 export default function NewProjectButton({ variant = 'primary' }: { variant?: 'primary' | 'outline' }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [genre, setGenre] = useState('')
+  const [projectType, setProjectType] = useState<ProjectType>('novel')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -30,7 +33,12 @@ export default function NewProjectButton({ variant = 'primary' }: { variant?: 'p
 
     const { data, error } = await supabase
       .from('projects')
-      .insert({ title: title.trim(), genre: genre || null, user_id: user.id })
+      .insert({
+        title: title.trim(),
+        genre: projectType === 'novel' ? (genre || null) : null,
+        project_type: projectType,
+        user_id: user.id,
+      })
       .select('id')
       .single()
 
@@ -43,8 +51,17 @@ export default function NewProjectButton({ variant = 'primary' }: { variant?: 'p
     setOpen(false)
     setTitle('')
     setGenre('')
+    setProjectType('novel')
     router.push(`/project/${data.id}`)
     router.refresh()
+  }
+
+  function handleClose() {
+    setOpen(false)
+    setTitle('')
+    setGenre('')
+    setProjectType('novel')
+    setError('')
   }
 
   return (
@@ -61,13 +78,12 @@ export default function NewProjectButton({ variant = 'primary' }: { variant?: 'p
         Nouveau projet
       </button>
 
-      {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-stone-900 border border-stone-700 rounded-xl p-6 w-full max-w-md flex flex-col gap-5">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-lg">Nouveau projet</h2>
-              <button onClick={() => setOpen(false)} className="text-stone-500 hover:text-stone-200">
+              <button onClick={handleClose} className="text-stone-500 hover:text-stone-200">
                 <X size={20} />
               </button>
             </div>
@@ -78,34 +94,72 @@ export default function NewProjectButton({ variant = 'primary' }: { variant?: 'p
                   {error}
                 </div>
               )}
+
+              {/* Project type toggle */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-stone-300">Type de projet</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setProjectType('novel')}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-lg border text-sm transition-all ${
+                      projectType === 'novel'
+                        ? 'border-amber-500 bg-amber-500/10 text-amber-400'
+                        : 'border-stone-700 text-stone-400 hover:border-stone-600'
+                    }`}
+                  >
+                    <BookOpen size={20} />
+                    Roman solo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setProjectType('team')}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-lg border text-sm transition-all ${
+                      projectType === 'team'
+                        ? 'border-amber-500 bg-amber-500/10 text-amber-400'
+                        : 'border-stone-700 text-stone-400 hover:border-stone-600'
+                    }`}
+                  >
+                    <Users size={20} />
+                    Projet d&apos;équipe
+                  </button>
+                </div>
+              </div>
+
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-stone-300">Titre du roman *</label>
+                <label className="text-sm font-medium text-stone-300">
+                  {projectType === 'novel' ? 'Titre du roman *' : "Nom du projet *"}
+                </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
-                  placeholder="ex: Les Chroniques d'Aria"
+                  placeholder={projectType === 'novel' ? "ex: Les Chroniques d'Aria" : "ex: Projet Atlas"}
                   className="bg-stone-800 border border-stone-700 rounded-lg px-3 py-2.5 text-sm placeholder:text-stone-600 focus:outline-none focus:border-amber-500 transition-colors"
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-stone-300">Genre</label>
-                <select
-                  value={genre}
-                  onChange={(e) => setGenre(e.target.value)}
-                  className="bg-stone-800 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-300 focus:outline-none focus:border-amber-500 transition-colors"
-                >
-                  <option value="">— Sélectionner un genre —</option>
-                  {GENRES.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </div>
+
+              {projectType === 'novel' && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-stone-300">Genre</label>
+                  <select
+                    value={genre}
+                    onChange={(e) => setGenre(e.target.value)}
+                    className="bg-stone-800 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-300 focus:outline-none focus:border-amber-500 transition-colors"
+                  >
+                    <option value="">— Sélectionner un genre —</option>
+                    {GENRES.map((g) => (
+                      <option key={g} value={g}>{g}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="flex gap-3 justify-end pt-2">
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={handleClose}
                   className="text-stone-400 hover:text-stone-200 text-sm px-4 py-2 transition-colors"
                 >
                   Annuler

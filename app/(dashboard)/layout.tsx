@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
+import AiAssistant from '@/components/AiAssistant'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,6 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
         {children}
       </main>
+      <AiAssistant />
     </div>
   )
 }

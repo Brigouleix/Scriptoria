@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { BookOpen, Loader2, CheckCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 export default function RegisterPage() {
+  const t = useTranslations('auth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,7 +20,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.')
+      setError(t('password_too_short'))
       setLoading(false)
       return
     }
@@ -47,13 +49,12 @@ export default function RegisterPage() {
       <div className="min-h-screen flex flex-col items-center justify-center px-6">
         <div className="w-full max-w-sm flex flex-col items-center gap-4 text-center">
           <CheckCircle className="text-amber-400" size={48} />
-          <h2 className="text-xl font-bold">Vérifiez votre email</h2>
+          <h2 className="text-xl font-bold">{t('check_email')}</h2>
           <p className="text-stone-400 text-sm leading-relaxed">
-            Un lien de confirmation a été envoyé à <span className="text-stone-200">{email}</span>.
-            Cliquez sur le lien pour activer votre compte.
+            {t('check_email_desc', { email })}
           </p>
           <Link href="/login" className="text-amber-400 hover:text-amber-300 text-sm transition-colors">
-            Retour à la connexion
+            {t('back_to_login')}
           </Link>
         </div>
       </div>
@@ -69,10 +70,9 @@ export default function RegisterPage() {
             <BookOpen className="text-amber-400" size={28} />
             <span className="text-2xl font-bold tracking-tight">Scriptoria</span>
           </Link>
-          <p className="text-stone-400 text-sm">Créez votre espace d&apos;écriture</p>
+          <p className="text-stone-400 text-sm">{t('register_title')}</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg">
@@ -80,47 +80,33 @@ export default function RegisterPage() {
             </div>
           )}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium text-stone-300">
-              Email
-            </label>
+            <label htmlFor="email" className="text-sm font-medium text-stone-300">{t('email')}</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="vous@exemple.com"
+              placeholder="you@example.com"
               className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2.5 text-sm placeholder:text-stone-600 focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-stone-300">
-              Mot de passe
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="8 caractères minimum"
-              className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2.5 text-sm placeholder:text-stone-600 focus:outline-none focus:border-amber-500 transition-colors"
-            />
+            <label htmlFor="password" className="text-sm font-medium text-stone-300">{t('password')}</label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder={t('password_placeholder')}
+              className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2.5 text-sm placeholder:text-stone-600 focus:outline-none focus:border-amber-500 transition-colors" />
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-stone-950 font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2"
-          >
+          <button type="submit" disabled={loading}
+            className="bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-stone-950 font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2">
             {loading && <Loader2 size={16} className="animate-spin" />}
-            Créer mon compte
+            {t('register_btn')}
           </button>
         </form>
 
         <p className="text-center text-stone-400 text-sm">
-          Déjà un compte ?{' '}
+          {t('has_account')}{' '}
           <Link href="/login" className="text-amber-400 hover:text-amber-300 transition-colors">
-            Se connecter
+            {t('sign_in')}
           </Link>
         </p>
       </div>
