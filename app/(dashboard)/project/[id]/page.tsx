@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { ChevronRight, Snowflake, CheckCircle2, Circle, FolderOpen, PenLine, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import DeleteProjectButton from '@/components/DeleteProjectButton'
-import PersonaWheel, { WheelNode } from '@/components/PersonaWheel'
+import ProjectSidebar from '@/components/ProjectSidebar'
+import { WheelNode } from '@/components/PersonaWheel'
 
 const STEPS_NOVEL = [
   { number: 1, label: 'La Prémisse', description: 'Une phrase qui résume tout votre roman.' },
@@ -36,11 +37,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const isTeam = project.project_type === 'team'
   const STEPS = isTeam ? STEPS_TEAM : STEPS_NOVEL
 
-  const [{ data: steps }, { data: members }] = await Promise.all([
+  const [{ data: steps }, { data: members }, { data: people }, { data: links }] = await Promise.all([
     supabase.from('snowflake_steps').select('step_number, content').eq('project_id', id),
     isTeam
       ? supabase.from('project_members').select('id, role, people(id, name)').eq('project_id', id).order('position')
       : Promise.resolve({ data: [] }),
+    supabase.from('people').select('id, name, bio, avatar_url').order('name'),
+    supabase.from('character_links').select('id, person_a_id, person_b_id, relationship'),
   ])
 
   const completedSteps = new Set(
@@ -61,15 +64,20 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   if (isTeam) {
     ;(members as any[] ?? []).forEach((m) => {
       const name = (m.people as { name: string } | null)?.name
-      if (name) wheelNodes.push({ id: m.id, label: name, sublabel: m.role || undefined, type: 'team', href: `/project/${id}/step/3` })
+      if (name) wheelNodes.push({ id: m.id, label: name, sublabel: m.role || undefined, type: 'team' })
     })
-  } else if (step3) {
-    if (step3.protagonist_name?.trim()) {
-      wheelNodes.push({ id: 'prot', label: step3.protagonist_name, sublabel: 'Protagoniste', type: 'protagonist', href: `/project/${id}/step/3` })
-    }
-    if (step3.antagonist_name?.trim()) {
-      wheelNodes.push({ id: 'ant', label: step3.antagonist_name, sublabel: 'Antagoniste', type: 'antagonist', href: `/project/${id}/step/3` })
-    }
+  } else {
+    // Use people table; cross-reference step3 for protagonist/antagonist labels
+    const protagonistName = step3?.protagonist_name?.trim().toLowerCase()
+    const antagonistName  = step3?.antagonist_name?.trim().toLowerCase()
+
+    ;(people ?? []).forEach((p) => {
+      const lower = p.name.toLowerCase()
+      let type: WheelNode['type'] = 'secondary'
+      if (protagonistName && lower === protagonistName) type = 'protagonist'
+      else if (antagonistName && lower === antagonistName) type = 'antagonist'
+      wheelNodes.push({ id: p.id, label: p.name, type })
+    })
   }
 
   return (
@@ -177,12 +185,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* ── RIGHT: persona wheel ── */}
-      <div className="flex items-end">
-        <PersonaWheel
-          nodes={wheelNodes}
+      {/* ── RIGHT: sidebar (wheel + book cover) ── */}
+      <div className="flex items-start pt-2">
+        <ProjectSidebar
+          wheelNodes={wheelNodes}
           centerLabel={project.title}
-          editHref={`/project/${id}/step/3`}
+          projectId={id}
+          projectTitle={project.title}
+          projectGenre={project.genre}
+          projectCoverUrl={(project as any).cover_url ?? null}
+          initialPeople={people ?? []}
+          initialLinks={links ?? []}
         />
       </div>
 

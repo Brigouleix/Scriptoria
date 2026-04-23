@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 
 export type NodeType = 'protagonist' | 'antagonist' | 'secondary' | 'team' | 'location' | 'add'
 
@@ -46,18 +45,19 @@ export default function PersonaWheel({
   nodes,
   centerLabel,
   editHref,
+  onNodeClick,
 }: {
   nodes: WheelNode[]
   centerLabel: string
-  editHref: string
+  editHref?: string
+  onNodeClick?: () => void
 }) {
   const [hovered, setHovered] = useState<string | null>(null)
 
-  // Always show at least 5 nodes total (fill with 'add' placeholders)
   const MIN_NODES = 5
   const filled: WheelNode[] = [...nodes]
   while (filled.length < MIN_NODES) {
-    filled.push({ id: `add-${filled.length}`, label: 'Ajouter', type: 'add', href: editHref })
+    filled.push({ id: `add-${filled.length}`, label: 'Ajouter', type: 'add' })
   }
 
   const positioned = filled.map((node, i) => {
@@ -65,18 +65,28 @@ export default function PersonaWheel({
     return { ...node, x: CX + ORBIT_R * Math.cos(angle), y: CY + ORBIT_R * Math.sin(angle) }
   })
 
+  function handleClick() {
+    onNodeClick?.()
+  }
+
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col gap-3 h-full w-full">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-sm text-[var(--text-primary)]">
           {nodes.some((n) => n.type === 'team') ? 'Réseau d\'équipe' : 'Carte des personnages'}
         </h2>
-        <Link href={editHref} className="text-xs text-[var(--accent)] hover:underline transition-colors">
-          Modifier →
-        </Link>
+        {editHref && (
+          <a href={editHref} className="text-xs text-[var(--accent)] hover:underline transition-colors">
+            Modifier →
+          </a>
+        )}
       </div>
 
-      <div className="border border-[var(--border)] bg-[var(--bg-card)] rounded-2xl overflow-hidden flex-1 flex items-center justify-center p-2">
+      <div
+        className="border border-[var(--border)] bg-[var(--bg-card)] rounded-2xl overflow-hidden flex-1 flex items-center justify-center p-2 cursor-pointer group hover:border-amber-500/40 transition-colors"
+        onClick={handleClick}
+        title="Gérer les personnages"
+      >
         <svg viewBox={`0 0 ${W} ${W}`} className="w-full max-w-sm h-auto" style={{ userSelect: 'none' }}>
           <defs>
             <radialGradient id="center-grad" cx="50%" cy="35%" r="65%">
@@ -85,7 +95,6 @@ export default function PersonaWheel({
             </radialGradient>
           </defs>
 
-          {/* Connection lines */}
           {positioned.map((node) => (
             <line
               key={`l-${node.id}`}
@@ -120,15 +129,11 @@ export default function PersonaWheel({
                 key={node.id}
                 onMouseEnter={() => setHovered(node.id)}
                 onMouseLeave={() => setHovered(null)}
-                style={{ cursor: node.href ? 'pointer' : 'default' }}
-                onClick={() => node.href && (window.location.href = node.href)}
               >
-                {/* Glow */}
                 {isHov && !isAdd && (
                   <circle cx={node.x} cy={node.y} r={NODE_R + 10} fill={color} opacity={0.2} />
                 )}
 
-                {/* White ring */}
                 <circle
                   cx={node.x} cy={node.y} r={NODE_R + 3}
                   fill="none"
@@ -139,7 +144,6 @@ export default function PersonaWheel({
                   style={{ transition: 'opacity 0.2s' }}
                 />
 
-                {/* Main circle */}
                 <circle
                   cx={node.x} cy={node.y} r={NODE_R}
                   fill={isAdd ? 'var(--bg-card)' : color}
@@ -149,7 +153,6 @@ export default function PersonaWheel({
                   opacity={isAdd ? 0.4 : 1}
                 />
 
-                {/* Text inside */}
                 {isAdd ? (
                   <text x={node.x} y={node.y} textAnchor="middle" dominantBaseline="middle"
                     fill="#78716c" fontSize={20} opacity={0.5}>+</text>
@@ -160,7 +163,6 @@ export default function PersonaWheel({
                   </text>
                 )}
 
-                {/* Label below */}
                 <text
                   x={node.x} y={node.y + NODE_R + 15}
                   textAnchor="middle"
@@ -187,7 +189,6 @@ export default function PersonaWheel({
         </svg>
       </div>
 
-      {/* Legend */}
       {nodes.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {[

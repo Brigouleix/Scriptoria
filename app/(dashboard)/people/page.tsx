@@ -8,7 +8,7 @@ export default async function PeoplePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: people }, { data: locations }] = await Promise.all([
+  const [{ data: people }, { data: locations }, { data: links }] = await Promise.all([
     supabase
       .from('people')
       .select('id, name, bio, avatar_url')
@@ -17,6 +17,9 @@ export default async function PeoplePage() {
       .from('locations')
       .select('id, name, description, location_photos(id, storage_path, name)')
       .order('created_at', { ascending: false }),
+    supabase
+      .from('character_links')
+      .select('id, person_a_id, person_b_id, relationship'),
   ])
 
   return (
@@ -30,7 +33,7 @@ export default async function PeoplePage() {
             Créez vos personnages, ajoutez une photo et réutilisez-les dans vos projets.
           </p>
         </div>
-        <PeopleManager initialPeople={people ?? []} />
+        <PeopleManager initialPeople={people ?? []} initialLinks={links ?? []} />
       </section>
 
       {/* Lieux */}
