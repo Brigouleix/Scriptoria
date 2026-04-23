@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Plus, Trash2, X, Loader2, Camera, Link2, ChevronDown, ChevronUp } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, Trash2, X, Loader2, Camera, Link2, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Person {
@@ -159,7 +160,13 @@ function PersonCard({
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-[var(--text-primary)] truncate">{person.name}</p>
+          <Link
+            href={`/people/${person.id}`}
+            className="group/name flex items-center gap-1.5 hover:text-amber-500 transition-colors"
+          >
+            <p className="font-semibold text-[var(--text-primary)] group-hover/name:text-amber-500 truncate transition-colors">{person.name}</p>
+            <ExternalLink size={11} className="shrink-0 text-[var(--text-muted)] opacity-0 group-hover/name:opacity-100 transition-opacity" />
+          </Link>
           {person.bio && <p className="text-[var(--text-muted)] text-sm truncate">{person.bio}</p>}
           {myLinks.length > 0 && (
             <p className="text-xs text-[var(--text-muted)] mt-0.5">

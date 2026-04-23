@@ -38,6 +38,7 @@ export interface LLMState {
 
 export interface UseLocalLLMReturn extends LLMState {
   summarize: (file: File, lang?: 'fr' | 'en') => Promise<void>
+  ask:       (question: string, context: string, lang?: 'fr' | 'en') => void
   reset:     () => void
 }
 
@@ -206,7 +207,14 @@ export function useLocalLLM(): UseLocalLLMReturn {
     }
   }, [])
 
+  /** Pose une question libre sur un contexte textuel */
+  const ask = useCallback((question: string, context: string, lang: 'fr' | 'en' = 'fr') => {
+    setState({ ...INITIAL_STATE, stage: 'loading', progressMsg: 'Chargement du modèle…' })
+    const msg: WorkerInput = { type: 'ask', question, context, lang }
+    workerRef.current?.postMessage(msg)
+  }, [])
+
   const reset = useCallback(() => setState(INITIAL_STATE), [])
 
-  return { ...state, summarize, reset }
+  return { ...state, summarize, ask, reset }
 }

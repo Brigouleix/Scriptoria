@@ -20,11 +20,9 @@ const MAX_CHUNK_WORDS = 380   // ~512 tokens — fenêtre de contexte sécurisé
 const MAX_NEW_TOKENS  = 180   // longueur max du résumé par chunk
 
 // ── Types ────────────────────────────────────────────────────────
-export type WorkerInput = {
-  type: 'summarize'
-  text: string
-  lang?: 'fr' | 'en'
-}
+export type WorkerInput =
+  | { type: 'summarize'; text: string; lang?: 'fr' | 'en' }
+  | { type: 'ask'; question: string; context: string; lang?: 'fr' | 'en' }
 
 export type WorkerOutput =
   | { type: 'progress';    stage: 'loading' | 'summarizing'; value: number; message: string }
@@ -128,44 +126,80 @@ async function reducePhase(partialSummaries: string[], lang: 'fr' | 'en'): Promi
   return callModel(prompt, lang)
 }
 
+/** Charge le modèle (factoriée pour réutilisation) */
+async function ensureModel(lang: 'fr' | 'en') {
+  if (generator) return
+  const loadingMsg: WorkerOutput = {
+    type: 'progress', stage: 'loading', value: 0,
+    message: lang === 'fr' ? 'Initialisation du modèle…' : 'Initializing model…',
+  }
+  self.postMessage(loadingMsg)
+
+  generator = await pipeline('text-generation', MODEL_ID, {
+    dtype: 'q4',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    progress_callback: (info: any) => {
+      if (info.status === 'progress') {
+        const pct = Math.round(info.progress ?? 0)
+        const msg: WorkerOutput = {
+          type: 'progress', stage: 'loading', value: pct,
+          message: `${info.file ?? 'modèle'} — ${pct}%`,
+        }
+        self.postMessage(msg)
+      } else if (info.status === 'done') {
+        const msg: WorkerOutput = {
+          type: 'progress', stage: 'loading', value: 100,
+          message: lang === 'fr' ? 'Modèle prêt ✓' : 'Model ready ✓',
+        }
+        self.postMessage(msg)
+      }
+    },
+  })
+}
+
 // ── Message handler ──────────────────────────────────────────────
 self.addEventListener('message', async (event: MessageEvent<WorkerInput>) => {
-  const { type, text, lang = 'fr' } = event.data
+  const msg  = event.data
+  const lang = ('lang' in msg ? msg.lang : undefined) ?? 'fr'
 
-  if (type !== 'summarize') return
+  // ── Mode Q&A ────────────────────────────────────────────────────
+  if (msg.type === 'ask') {
+    try {
+      await ensureModel(lang)
+
+      const progressMsg: WorkerOutput = {
+        type: 'progress', stage: 'summarizing', value: 20,
+        message: lang === 'fr' ? 'Génération de la réponse…' : 'Generating answer…',
+      }
+      self.postMessage(progressMsg)
+
+      // Tronquer le contexte pour rester dans la fenêtre (~600 mots)
+      const contextWords = msg.context.split(/\s+/).slice(0, 600).join(' ')
+      const prompt = lang === 'fr'
+        ? `Contexte de la page :\n${contextWords}\n\nQuestion : ${msg.question}\n\nRéponds de façon concise et utile en français.`
+        : `Page context:\n${contextWords}\n\nQuestion: ${msg.question}\n\nAnswer concisely and helpfully in English.`
+
+      const answer = await callModel(prompt, lang)
+
+      const doneMsg: WorkerOutput = { type: 'done', summary: answer }
+      self.postMessage(doneMsg)
+    } catch (err: unknown) {
+      const errMsg: WorkerOutput = {
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Erreur dans le worker.',
+      }
+      self.postMessage(errMsg)
+    }
+    return
+  }
+
+  if (msg.type !== 'summarize') return
+
+  const { text } = msg
 
   try {
     // ── 1. Chargement du modèle (une seule fois, mis en cache) ──
-    if (!generator) {
-      const loadingMsg: WorkerOutput = {
-        type: 'progress', stage: 'loading', value: 0,
-        message: lang === 'fr' ? 'Initialisation du modèle…' : 'Initializing model…',
-      }
-      self.postMessage(loadingMsg)
-
-      generator = await pipeline('text-generation', MODEL_ID, {
-        dtype: 'q4',            // version quantifiée 4-bit (≈ 900 Mo)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        progress_callback: (info: any) => {
-          if (info.status === 'progress') {
-            const pct = Math.round(info.progress ?? 0)
-            const progressMsg: WorkerOutput = {
-              type:    'progress',
-              stage:   'loading',
-              value:   pct,
-              message: `${info.file ?? 'modèle'} — ${pct}%`,
-            }
-            self.postMessage(progressMsg)
-          } else if (info.status === 'done') {
-            const doneMsg: WorkerOutput = {
-              type: 'progress', stage: 'loading', value: 100,
-              message: lang === 'fr' ? 'Modèle prêt ✓' : 'Model ready ✓',
-            }
-            self.postMessage(doneMsg)
-          }
-        },
-      })
-    }
+    await ensureModel(lang)
 
     // ── 2. Découpage du texte ────────────────────────────────────
     const chunks = chunkText(text, MAX_CHUNK_WORDS)
