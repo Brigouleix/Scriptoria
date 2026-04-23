@@ -12,9 +12,9 @@ const STEPS_NOVEL = [
 ]
 
 const STEPS_TEAM = [
-  { number: 1, label: 'La Prémisse', description: 'En une phrase, résumez l\'objectif du projet.' },
+  { number: 1, label: 'La Prémisse', description: "En une phrase, résumez l'objectif du projet." },
   { number: 2, label: 'Le Résumé', description: 'Contexte, enjeux, jalons et résultat attendu.' },
-  { number: 3, label: "L'Équipe", description: 'Les membres de l\'équipe et leurs rôles.' },
+  { number: 3, label: "L'Équipe", description: "Les membres de l'équipe et leurs rôles." },
   { number: 4, label: 'Le Synopsis', description: 'Une description complète du projet.' },
 ]
 
@@ -52,35 +52,35 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
-      {/* Header */}
+      {/* Breadcrumb */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-stone-400 text-sm">
-          <Link href="/dashboard" className="hover:text-stone-200 transition-colors">
+        <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm">
+          <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">
             Mes projets
           </Link>
           <ChevronRight size={14} />
-          <span className="text-stone-200">{project.title}</span>
+          <span className="text-[var(--text-secondary)]">{project.title}</span>
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">{project.title}</h1>
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">{project.title}</h1>
               {isTeam && (
-                <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-600 border border-amber-500/30 px-2 py-0.5 rounded-full">
                   <Users size={11} />
                   Équipe
                 </span>
               )}
             </div>
             {project.genre && (
-              <span className="text-sm text-stone-300">{project.genre}</span>
+              <span className="text-sm text-[var(--text-muted)]">{project.genre}</span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Link
               href={`/project/${id}/write`}
               title="Ouvrir l'éditeur"
-              className="flex items-center gap-1.5 border border-stone-700 hover:border-amber-500 text-stone-300 hover:text-amber-400 px-3 py-1.5 rounded-lg text-sm transition-colors"
+              className="flex items-center gap-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-[var(--text-secondary)] hover:text-[var(--accent)] px-3 py-1.5 rounded-lg text-sm transition-colors"
             >
               <PenLine size={15} />
               Écrire
@@ -93,13 +93,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       {/* Progress bar */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2 text-stone-300">
-            <Snowflake size={14} className="text-amber-400" />
+          <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+            <Snowflake size={14} className="text-amber-500" />
             Méthode Snowflake
           </div>
-          <span className="text-stone-300">{progress}%</span>
+          <span className="text-[var(--text-muted)]">{progress}%</span>
         </div>
-        <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
           <div
             className="h-full bg-amber-500 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
@@ -115,27 +115,25 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <Link
               key={step.number}
               href={`/project/${id}/steps`}
-              className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900 rounded-xl p-5 flex items-center gap-4 transition-colors"
+              className="group border border-[var(--border)] hover:border-[var(--border-hover)] bg-[var(--bg-card)] rounded-xl p-5 flex items-center gap-4 transition-colors"
             >
               <div className="shrink-0">
                 {isDone ? (
-                  <CheckCircle2 className="text-amber-400" size={22} />
+                  <CheckCircle2 className="text-amber-500" size={22} />
                 ) : (
-                  <Circle className="text-stone-500 group-hover:text-stone-300 transition-colors" size={22} />
+                  <Circle className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors" size={22} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-stone-400 font-mono">
-                    Étape {step.number}
-                  </span>
-                </div>
-                <p className="font-semibold text-stone-100">{step.label}</p>
-                <p className="text-stone-300 text-sm mt-0.5">{step.description}</p>
+                <span className="text-xs text-[var(--text-muted)] font-mono">
+                  Étape {step.number}
+                </span>
+                <p className="font-semibold text-[var(--text-primary)]">{step.label}</p>
+                <p className="text-[var(--text-secondary)] text-sm mt-0.5">{step.description}</p>
               </div>
               <ChevronRight
                 size={16}
-                className="text-stone-500 group-hover:text-amber-400 shrink-0 transition-colors"
+                className="text-[var(--text-muted)] group-hover:text-amber-500 shrink-0 transition-colors"
               />
             </Link>
           )
@@ -143,19 +141,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Documents section */}
-      <div className="border-t border-stone-800 pt-6">
+      <div className="border-t border-[var(--border)] pt-6">
         <Link
           href={`/project/${id}/documents`}
-          className="group border border-stone-800 hover:border-amber-500/40 bg-stone-900 rounded-xl p-5 flex items-center gap-4 transition-colors"
+          className="group border border-[var(--border)] hover:border-[var(--border-hover)] bg-[var(--bg-card)] rounded-xl p-5 flex items-center gap-4 transition-colors"
         >
           <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
-            <FolderOpen className="text-amber-400" size={16} />
+            <FolderOpen className="text-amber-500" size={16} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-stone-100">Documents</p>
-            <p className="text-stone-300 text-sm mt-0.5">Images, PDF, DOC, TXT organisés par chapitre</p>
+            <p className="font-semibold text-[var(--text-primary)]">Documents</p>
+            <p className="text-[var(--text-secondary)] text-sm mt-0.5">Images, PDF, DOC, TXT organisés par chapitre</p>
           </div>
-          <ChevronRight size={16} className="text-stone-500 group-hover:text-amber-400 shrink-0 transition-colors" />
+          <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-amber-500 shrink-0 transition-colors" />
         </Link>
       </div>
     </div>

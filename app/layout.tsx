@@ -23,7 +23,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className="h-full">
-      <body className={`${geist.className} min-h-full bg-stone-950 text-stone-100 antialiased`} suppressHydrationWarning>
+      <body className={`${geist.className} min-h-full antialiased`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             {children}

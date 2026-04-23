@@ -13,7 +13,7 @@ export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className="flex items-center gap-1 p-1 rounded-lg bg-black/10 border border-white/10">
+    <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-input)] border border-[var(--border)]">
       {THEMES.map(({ id, icon: Icon, label }) => (
         <button
           key={id}
@@ -21,8 +21,8 @@ export default function ThemeSwitcher() {
           title={label}
           className={`p-1.5 rounded-md transition-all ${
             theme === id
-              ? 'bg-amber-500 text-stone-950'
-              : 'text-stone-400 hover:text-stone-200'
+              ? 'bg-amber-500 text-white'
+              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
           }`}
         >
           <Icon size={14} />
