@@ -21,7 +21,9 @@
   },
   "nav": {
     "logout": "Déconnexion",
-    "my_projects": "Mes projets"
+    "my_projects": "Mes projets",
+    "members": "Membres",
+    "back": "Retour"
   },
   "landing": {
     "badge": "Méthode Snowflake",
@@ -72,6 +74,12 @@
     "new_project_genre_placeholder": "— Sélectionner un genre —",
     "create_error": "Erreur lors de la création. Réessayez."
   },
+  "people": {
+    "title": "Personnages",
+    "subtitle": "Créez vos personnages, ajoutez une photo et réutilisez-les dans vos projets.",
+    "locations_title": "Lieux",
+    "locations_subtitle": "Capturez vos lieux d'inspiration avec des photos — même sans savoir encore où les intégrer."
+  },
   "project": {
     "breadcrumb": "Mes projets",
     "snowflake": "Méthode Snowflake",
@@ -81,7 +89,10 @@
     "delete": "Supprimer",
     "overview": "Vue d'ensemble",
     "step": "Étape",
-    "step_of": "Étape {current} / {total}"
+    "step_of": "Étape {current} / {total}",
+    "writings": "Productions écrites",
+    "writings_desc_empty": "Organisez vos documents Word et écrits par chapitre",
+    "writings_more": "+{count} autres"
   },
   "steps": {
     "premise_label": "La Prémisse",
@@ -98,12 +109,12 @@
     "synopsis_hint": "Le synopsis doit couvrir l'intégralité de l'histoire, y compris la fin."
   },
   "documents": {
-    "title": "Documents",
+    "title": "Productions écrites",
     "chapter_count": "{count} chapitre",
     "chapter_count_plural": "{count} chapitres",
     "new_chapter": "Nouveau chapitre",
     "no_chapters": "Aucun chapitre",
-    "no_chapters_desc": "Créez un chapitre pour commencer à organiser vos documents.",
+    "no_chapters_desc": "Créez un chapitre pour y déposer vos fichiers écrits.",
     "chapter_title": "Titre *",
     "chapter_title_placeholder": "ex: Chapitre 1 — Le départ",
     "chapter_description": "Description",

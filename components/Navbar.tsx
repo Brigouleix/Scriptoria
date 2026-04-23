@@ -27,13 +27,6 @@ export default function Navbar({ user }: { user: User }) {
         <span className="font-bold tracking-tight text-[var(--text-primary)]">Scriptoria</span>
       </Link>
       <div className="flex items-center gap-4">
-        <Link
-          href="/people"
-          className="flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm transition-colors"
-        >
-          <Users size={15} />
-          <span className="hidden sm:block">Membres</span>
-        </Link>
         <ThemeSwitcher />
         <LocaleSwitcher />
         <span className="text-[var(--text-muted)] text-sm hidden sm:block">{user.email}</span>

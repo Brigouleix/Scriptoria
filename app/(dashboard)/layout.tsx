@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
+import LeftNav from '@/components/LeftNav'
+import BackButton from '@/components/BackButton'
 import AiAssistant from '@/components/AiAssistant'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -10,11 +12,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect('/login')
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-base)]">
       <Navbar user={user} />
-      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
-        {children}
-      </main>
+      <div className="flex flex-1 min-h-0">
+        <LeftNav />
+        <main className="flex-1 min-w-0 overflow-auto px-6 py-8">
+          <div className="max-w-5xl mx-auto">
+            <BackButton />
+            {children}
+          </div>
+        </main>
+      </div>
       <AiAssistant />
     </div>
   )

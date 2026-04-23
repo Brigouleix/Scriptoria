@@ -57,7 +57,7 @@ export default function BookCover({ projectId, title, genre, initialCoverUrl }: 
     <div className="flex flex-col gap-3 w-full">
       <h2 className="font-semibold text-sm text-[var(--text-primary)]">Couverture</h2>
 
-      <div className="flex gap-0 drop-shadow-xl group" style={{ height: 260 }}>
+      <div className="flex gap-0 drop-shadow-xl group" style={{ height: 550 }}>
         {/* Spine */}
         <div
           className="w-5 rounded-l-sm flex items-center justify-center shrink-0"

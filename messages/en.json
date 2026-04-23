@@ -21,7 +21,9 @@
   },
   "nav": {
     "logout": "Logout",
-    "my_projects": "My projects"
+    "my_projects": "My projects",
+    "members": "Members",
+    "back": "Back"
   },
   "landing": {
     "badge": "Snowflake Method",
@@ -72,6 +74,12 @@
     "new_project_genre_placeholder": "— Select a genre —",
     "create_error": "Error creating project. Please try again."
   },
+  "people": {
+    "title": "Characters",
+    "subtitle": "Create your characters, add a photo and reuse them across your projects.",
+    "locations_title": "Locations",
+    "locations_subtitle": "Capture your inspiration spots with photos — even if you don't know yet where to use them."
+  },
   "project": {
     "breadcrumb": "My projects",
     "snowflake": "Snowflake Method",
@@ -81,7 +89,10 @@
     "delete": "Delete",
     "overview": "Overview",
     "step": "Step",
-    "step_of": "Step {current} / {total}"
+    "step_of": "Step {current} / {total}",
+    "writings": "Written productions",
+    "writings_desc_empty": "Organize your Word documents and writings by chapter",
+    "writings_more": "+{count} more"
   },
   "steps": {
     "premise_label": "The Premise",
@@ -98,12 +109,12 @@
     "synopsis_hint": "The synopsis must cover the entire story, including the ending."
   },
   "documents": {
-    "title": "Documents",
+    "title": "Written productions",
     "chapter_count": "{count} chapter",
     "chapter_count_plural": "{count} chapters",
     "new_chapter": "New chapter",
     "no_chapters": "No chapters",
-    "no_chapters_desc": "Create a chapter to start organizing your documents.",
+    "no_chapters_desc": "Create a chapter to store your written files.",
     "chapter_title": "Title *",
     "chapter_title_placeholder": "e.g.: Chapter 1 — The Departure",
     "chapter_description": "Description",
