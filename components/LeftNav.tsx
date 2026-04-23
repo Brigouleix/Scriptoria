@@ -42,13 +42,29 @@ export default function LeftNav() {
   const projectsActive = pathname === '/dashboard' || !!currentProjectId
   const peopleActive   = pathname.startsWith('/people')
 
+  // Premier niveau : "Tous les projets", "Mes personnages"
+  const subHeader = (href: string, label: string, active: boolean) => (
+    <Link
+      key={href}
+      href={href}
+      className={`text-xs py-1.5 px-2 rounded-md transition-colors truncate block font-medium ${
+        active
+          ? 'text-amber-500'
+          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-input)]'
+      }`}
+    >
+      {label}
+    </Link>
+  )
+
+  // Deuxième niveau : chaque projet / chaque personnage
   const subItem = (href: string, label: string, active: boolean) => (
     <Link
       key={href}
       href={href}
-      className={`text-xs py-1.5 px-2 rounded-md transition-colors truncate block ${
+      className={`text-[11px] py-1 pl-3 pr-2 rounded-md transition-colors truncate block ${
         active
-          ? 'text-amber-500 font-semibold'
+          ? 'text-amber-500 font-medium'
           : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-input)]'
       }`}
     >
@@ -81,12 +97,12 @@ export default function LeftNav() {
 
         {open === 'projects' && (
           <div className="mt-1 ml-4 pl-3 border-l border-[var(--border)] flex flex-col gap-0.5">
-            {subItem('/dashboard', t('all_projects'), pathname === '/dashboard')}
+            {subHeader('/dashboard', t('all_projects'), pathname === '/dashboard')}
             {projects.map((p) =>
               subItem(`/project/${p.id}`, p.title, currentProjectId === p.id)
             )}
             {projects.length === 0 && (
-              <span className="text-xs text-[var(--text-muted)] py-1 px-2 italic">
+              <span className="text-[11px] text-[var(--text-muted)] py-1 pl-3 italic">
                 Aucun projet
               </span>
             )}
@@ -116,11 +132,7 @@ export default function LeftNav() {
 
         {open === 'people' && (
           <div className="mt-1 ml-4 pl-3 border-l border-[var(--border)] flex flex-col gap-0.5">
-            {subItem(
-              '/people',
-              isTeam ? t('my_team') : t('my_characters'),
-              pathname === '/people'
-            )}
+            {subHeader('/people', isTeam ? t('my_team') : t('my_characters'), pathname === '/people')}
             {people.map((p) =>
               subItem(`/people#${p.id}`, p.name, false)
             )}
