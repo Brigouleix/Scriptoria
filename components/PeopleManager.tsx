@@ -134,7 +134,7 @@ function PersonCard({
   }
 
   return (
-    <div className="border border-[var(--border)] bg-[var(--bg-card)] rounded-xl overflow-hidden">
+    <div id={person.id} className="border border-[var(--border)] bg-[var(--bg-card)] rounded-xl overflow-hidden">
       <div className="flex items-center gap-4 px-4 py-3">
         {/* Avatar */}
         <div

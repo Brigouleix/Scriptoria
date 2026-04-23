@@ -22,7 +22,10 @@
   "nav": {
     "logout": "Logout",
     "my_projects": "My projects",
+    "all_projects": "All projects",
     "members": "Members",
+    "my_characters": "My characters",
+    "my_team": "My team",
     "back": "Back"
   },
   "landing": {

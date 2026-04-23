@@ -23,7 +23,10 @@
                 "logout":  "Dekonekte",
                 "my_projects":  "Pwojè mwen yo",
                 "members":  "Members",
-                "back":  "Back"
+                "back":  "Back",
+                "all_projects":  "All projects",
+                "my_characters":  "My characters",
+                "my_team":  "My team"
             },
     "landing":  {
                     "badge":  "Metòd Snowflake",

@@ -22,7 +22,10 @@
   "nav": {
     "logout": "Déconnexion",
     "my_projects": "Mes projets",
+    "all_projects": "Tous les projets",
     "members": "Membres",
+    "my_characters": "Mes personnages",
+    "my_team": "Mon équipe",
     "back": "Retour"
   },
   "landing": {

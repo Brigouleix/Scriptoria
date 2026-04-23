@@ -23,7 +23,10 @@
                 "logout":  "Cerrar sesión",
                 "my_projects":  "Mis proyectos",
                 "members":  "Members",
-                "back":  "Back"
+                "back":  "Back",
+                "all_projects":  "All projects",
+                "my_characters":  "My characters",
+                "my_team":  "My team"
             },
     "landing":  {
                     "badge":  "Método Snowflake",
