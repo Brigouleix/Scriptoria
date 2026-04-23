@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, Snowflake, CheckCircle2, Circle, FolderOpen, PenLine, Users } from 'lucide-react'
+import { ChevronRight, Snowflake, CheckCircle2, Circle, FolderOpen, PenLine, Users, BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import DeleteProjectButton from '@/components/DeleteProjectButton'
 import ProjectSidebar from '@/components/ProjectSidebar'
@@ -37,13 +37,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const isTeam = project.project_type === 'team'
   const STEPS = isTeam ? STEPS_TEAM : STEPS_NOVEL
 
-  const [{ data: steps }, { data: members }, { data: people }, { data: links }] = await Promise.all([
+  const [{ data: steps }, { data: members }, { data: people }, { data: links }, { data: chapters }] = await Promise.all([
     supabase.from('snowflake_steps').select('step_number, content').eq('project_id', id),
     isTeam
       ? supabase.from('project_members').select('id, role, people(id, name)').eq('project_id', id).order('position')
       : Promise.resolve({ data: [] }),
     supabase.from('people').select('id, name, bio, avatar_url').order('name'),
     supabase.from('character_links').select('id, person_a_id, person_b_id, relationship'),
+    supabase.from('chapters').select('id, title').eq('project_id', id).order('position', { ascending: true }),
   ])
 
   const completedSteps = new Set(
@@ -167,18 +168,57 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           })}
         </div>
 
-        {/* Documents */}
+        {/* Chapitres écrits */}
         <div className="border-t border-[var(--border)] pt-6">
+          <Link
+            href={`/project/${id}/documents`}
+            className="group border border-[var(--border)] hover:border-amber-500/40 bg-[var(--bg-card)] rounded-xl p-5 flex items-start gap-4 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+              <BookOpen className="text-amber-500" size={16} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-[var(--text-primary)]">Productions écrites</p>
+              <p className="text-[var(--text-secondary)] text-sm mt-0.5">
+                {(chapters ?? []).length === 0
+                  ? 'Organisez vos documents Word et écrits par chapitre'
+                  : `${(chapters ?? []).length} chapitre${(chapters ?? []).length > 1 ? 's' : ''}`
+                }
+              </p>
+              {(chapters ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {(chapters ?? []).slice(0, 4).map((ch) => (
+                    <span
+                      key={ch.id}
+                      className="text-xs bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2 py-0.5 rounded-full truncate max-w-[140px]"
+                    >
+                      {ch.title}
+                    </span>
+                  ))}
+                  {(chapters ?? []).length > 4 && (
+                    <span className="text-xs text-[var(--text-muted)] py-0.5">
+                      +{(chapters ?? []).length - 4} autres
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-amber-500 shrink-0 transition-colors mt-0.5" />
+          </Link>
+        </div>
+
+        {/* Documents divers */}
+        <div>
           <Link
             href={`/project/${id}/documents`}
             className="group border border-[var(--border)] hover:border-[var(--border-hover)] bg-[var(--bg-card)] rounded-xl p-5 flex items-center gap-4 transition-colors"
           >
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
-              <FolderOpen className="text-amber-500" size={16} />
+            <div className="w-8 h-8 rounded-lg bg-[var(--bg-input)] flex items-center justify-center shrink-0">
+              <FolderOpen className="text-[var(--text-muted)]" size={16} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-[var(--text-primary)]">Documents</p>
-              <p className="text-[var(--text-secondary)] text-sm mt-0.5">Images, PDF, DOC, TXT organisés par chapitre</p>
+              <p className="text-[var(--text-secondary)] text-sm mt-0.5">Images, PDF, références organisées par chapitre</p>
             </div>
             <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-amber-500 shrink-0 transition-colors" />
           </Link>

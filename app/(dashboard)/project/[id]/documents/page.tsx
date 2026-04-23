@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, FolderOpen, FileText, Image, File } from 'lucide-react'
+import { ChevronRight, FolderOpen, File } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import NewChapterButton from '@/components/NewChapterButton'
 import DeleteChapterButton from '@/components/DeleteChapterButton'
@@ -38,20 +38,20 @@ export default async function DocumentsPage({ params }: { params: Promise<{ id: 
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-stone-500 text-sm flex-wrap">
-        <Link href="/dashboard" className="hover:text-stone-300 transition-colors">Mes projets</Link>
+      <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm flex-wrap">
+        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Mes projets</Link>
         <ChevronRight size={14} />
-        <Link href={`/project/${id}`} className="hover:text-stone-300 transition-colors">{project.title}</Link>
+        <Link href={`/project/${id}`} className="hover:text-[var(--text-primary)] transition-colors">{project.title}</Link>
         <ChevronRight size={14} />
-        <span className="text-stone-300">Documents</span>
+        <span className="text-[var(--text-secondary)]">Productions écrites</span>
       </div>
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Documents</h1>
-          <p className="text-stone-400 text-sm mt-1">
-            {chapters?.length ?? 0} chapitre{(chapters?.length ?? 0) > 1 ? 's' : ''}
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Productions écrites</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1">
+            {chapters?.length ?? 0} chapitre{(chapters?.length ?? 0) > 1 ? 's' : ''} — stockez vos docs Word et fichiers écrits
           </p>
         </div>
         <NewChapterButton projectId={id} />
@@ -59,14 +59,14 @@ export default async function DocumentsPage({ params }: { params: Promise<{ id: 
 
       {/* Chapters list */}
       {!chapters || chapters.length === 0 ? (
-        <div className="border border-dashed border-stone-700 rounded-xl p-16 flex flex-col items-center gap-4 text-center">
+        <div className="border border-dashed border-[var(--border)] rounded-xl p-16 flex flex-col items-center gap-4 text-center">
           <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-            <FolderOpen className="text-amber-400" size={24} />
+            <FolderOpen className="text-amber-500" size={24} />
           </div>
           <div>
-            <p className="font-semibold">Aucun chapitre</p>
-            <p className="text-stone-400 text-sm mt-1">
-              Créez un chapitre pour commencer à organiser vos documents.
+            <p className="font-semibold text-[var(--text-primary)]">Aucun chapitre</p>
+            <p className="text-[var(--text-muted)] text-sm mt-1">
+              Créez un chapitre pour y déposer vos fichiers écrits.
             </p>
           </div>
           <NewChapterButton projectId={id} variant="outline" />
@@ -78,7 +78,7 @@ export default async function DocumentsPage({ params }: { params: Promise<{ id: 
             return (
               <div
                 key={chapter.id}
-                className="group border border-stone-800 hover:border-amber-500/30 bg-stone-900/50 rounded-xl p-5 transition-colors"
+                className="group border border-[var(--border)] hover:border-amber-500/30 bg-[var(--bg-card)] rounded-xl p-5 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <Link
@@ -86,17 +86,17 @@ export default async function DocumentsPage({ params }: { params: Promise<{ id: 
                     className="flex items-start gap-3 flex-1 min-w-0"
                   >
                     <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <FolderOpen className="text-amber-400" size={18} />
+                      <FolderOpen className="text-amber-500" size={18} />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-stone-100 truncate">{chapter.title}</p>
+                      <p className="font-semibold text-[var(--text-primary)] truncate">{chapter.title}</p>
                       {chapter.description && (
-                        <p className="text-stone-400 text-sm mt-0.5 line-clamp-1">{chapter.description}</p>
+                        <p className="text-[var(--text-muted)] text-sm mt-0.5 line-clamp-1">{chapter.description}</p>
                       )}
-                      <div className="flex items-center gap-3 mt-2 text-xs text-stone-500">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-muted)]">
                         <span className="flex items-center gap-1">
                           <File size={11} />
-                          {count} fichier{count > 1 ? 's' : ''}
+                          {count} fichier{count !== 1 ? 's' : ''}
                         </span>
                       </div>
                     </div>

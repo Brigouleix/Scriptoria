@@ -40,21 +40,21 @@ export default async function ChapterPage({
   return (
     <div className="flex flex-col gap-8 max-w-4xl">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-stone-500 text-sm flex-wrap">
-        <Link href="/dashboard" className="hover:text-stone-300 transition-colors">Mes projets</Link>
+      <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm flex-wrap">
+        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Mes projets</Link>
         <ChevronRight size={14} />
-        <Link href={`/project/${id}`} className="hover:text-stone-300 transition-colors">{project.title}</Link>
+        <Link href={`/project/${id}`} className="hover:text-[var(--text-primary)] transition-colors">{project.title}</Link>
         <ChevronRight size={14} />
-        <Link href={`/project/${id}/documents`} className="hover:text-stone-300 transition-colors">Documents</Link>
+        <Link href={`/project/${id}/documents`} className="hover:text-[var(--text-primary)] transition-colors">Productions écrites</Link>
         <ChevronRight size={14} />
-        <span className="text-stone-300">{chapter.title}</span>
+        <span className="text-[var(--text-secondary)]">{chapter.title}</span>
       </div>
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">{chapter.title}</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">{chapter.title}</h1>
         {chapter.description && (
-          <p className="text-stone-400 mt-1">{chapter.description}</p>
+          <p className="text-[var(--text-muted)] mt-1">{chapter.description}</p>
         )}
       </div>
 
