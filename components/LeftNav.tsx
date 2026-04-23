@@ -50,7 +50,7 @@ export default function LeftNav() {
       className={`text-xs py-1.5 px-2 rounded-md transition-colors truncate block font-medium ${
         active
           ? 'text-amber-500'
-          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-input)]'
+          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'
       }`}
     >
       {label}
@@ -65,7 +65,7 @@ export default function LeftNav() {
       className={`text-[11px] py-1 pl-3 pr-2 rounded-md transition-colors truncate block ${
         active
           ? 'text-amber-500 font-medium'
-          : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-input)]'
+          : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'
       }`}
     >
       {label}
@@ -82,7 +82,7 @@ export default function LeftNav() {
           className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
             projectsActive
               ? 'bg-amber-500/10 text-amber-500'
-              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-input)]'
+              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'
           }`}
         >
           <span className="flex items-center gap-2.5">
@@ -117,7 +117,7 @@ export default function LeftNav() {
           className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
             peopleActive
               ? 'bg-amber-500/10 text-amber-500'
-              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-input)]'
+              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]'
           }`}
         >
           <span className="flex items-center gap-2.5">
