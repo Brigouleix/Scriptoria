@@ -12,8 +12,9 @@ export default async function WritePage({ params }: { params: Promise<{ id: stri
 
   const { data: project } = await supabase
     .from('projects')
-    .select('id, title')
+    .select('id, title, user_id')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (!project) notFound()

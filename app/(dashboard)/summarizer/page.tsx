@@ -8,6 +8,12 @@ export default async function SummarizerPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: projects } = await supabase
+    .from('projects')
+    .select('id, title')
+    .eq('user_id', user.id)
+    .order('updated_at', { ascending: false })
+
   return (
     <div className="flex flex-col gap-8 max-w-2xl">
 
@@ -40,7 +46,7 @@ export default async function SummarizerPage() {
       </div>
 
       {/* Composant principal */}
-      <DocumentSummarizer />
+      <DocumentSummarizer userId={user.id} projects={projects ?? []} />
     </div>
   )
 }

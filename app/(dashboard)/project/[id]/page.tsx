@@ -37,13 +37,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const isTeam = project.project_type === 'team'
   const STEPS = isTeam ? STEPS_TEAM : STEPS_NOVEL
 
-  const [{ data: steps }, { data: members }, { data: people }, { data: links }, { data: chapters }] = await Promise.all([
+  // Personnages de CE projet uniquement (sans fallback)
+  const { data: people } = await supabase
+    .from('people').select('id, name, bio, avatar_url')
+    .eq('project_id', id).order('name')
+
+  const personIds = (people ?? []).map((p) => p.id)
+
+  const [{ data: steps }, { data: members }, { data: links }, { data: chapters }] = await Promise.all([
     supabase.from('snowflake_steps').select('step_number, content').eq('project_id', id),
     isTeam
       ? supabase.from('project_members').select('id, role, people(id, name)').eq('project_id', id).order('position')
       : Promise.resolve({ data: [] }),
-    supabase.from('people').select('id, name, bio, avatar_url').order('name'),
-    supabase.from('character_links').select('id, person_a_id, person_b_id, relationship'),
+    personIds.length > 0
+      ? supabase.from('character_links').select('id, person_a_id, person_b_id, relationship')
+          .or(`person_a_id.in.(${personIds.join(',')}),person_b_id.in.(${personIds.join(',')})`)
+      : Promise.resolve({ data: [] }),
     supabase.from('chapters').select('id, title').eq('project_id', id).order('position', { ascending: true }),
   ])
 

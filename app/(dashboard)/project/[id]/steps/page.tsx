@@ -55,8 +55,9 @@ export default async function StepsOverviewPage({ params }: { params: Promise<{ 
 
   const { data: project } = await supabase
     .from('projects')
-    .select('id, title, genre')
+    .select('id, title, genre, user_id')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (!project) notFound()

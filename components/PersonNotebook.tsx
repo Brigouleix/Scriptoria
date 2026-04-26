@@ -1,9 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  Plus, Trash2, Loader2, Check, Pencil, X, GripVertical,
-} from 'lucide-react'
+import { Plus, Loader2, Check, X, GripVertical } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 // ── Types ────────────────────────────────────────────────────────
@@ -65,37 +63,63 @@ function NotebookField({
   )
 }
 
-// ── Custom field row ─────────────────────────────────────────────
+// ── Custom field row — même style que NotebookField + drag & drop ─
 function CustomFieldRow({
-  field, index, onChangeName, onChangeValue, onDelete,
+  field, index, total,
+  onChangeName, onChangeValue, onDelete,
+  onDragStart, onDragOver, onDrop, onDragEnd,
+  isDragOver,
 }: {
-  field: CustomField; index: number
-  onChangeName: (i: number, v: string) => void
+  field: CustomField; index: number; total: number
+  onChangeName:  (i: number, v: string) => void
   onChangeValue: (i: number, v: string) => void
-  onDelete: (i: number) => void
+  onDelete:      (i: number) => void
+  onDragStart:   (i: number) => void
+  onDragOver:    (e: React.DragEvent, i: number) => void
+  onDrop:        (i: number) => void
+  onDragEnd:     () => void
+  isDragOver:    boolean
 }) {
   return (
-    <div className="flex items-start gap-2 group">
-      <GripVertical size={14} className="text-[var(--text-muted)] mt-2 shrink-0 opacity-40" />
-      <div className="flex-1 flex flex-col gap-1">
+    <div
+      draggable
+      onDragStart={() => onDragStart(index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={() => onDrop(index)}
+      onDragEnd={onDragEnd}
+      className={`flex items-start gap-2 group transition-all ${isDragOver ? 'opacity-50 scale-[0.98]' : ''}`}
+    >
+      {/* Handle de déplacement */}
+      <div
+        className="mt-5 shrink-0 cursor-grab active:cursor-grabbing text-[var(--text-muted)] opacity-30 group-hover:opacity-70 transition-opacity"
+        title="Glisser pour réordonner"
+      >
+        <GripVertical size={14} />
+      </div>
+
+      <div className="flex-1 flex flex-col gap-1.5">
+        {/* Label éditable — style identique à NotebookField label */}
         <input
           type="text"
           value={field.name}
           onChange={(e) => onChangeName(index, e.target.value)}
           placeholder="Nom du champ…"
-          className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider bg-transparent border-none outline-none placeholder:text-[var(--text-muted)]/50 w-full"
+          className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider bg-transparent border-none outline-none placeholder:text-[var(--text-muted)]/40 w-full focus:placeholder:opacity-0"
         />
+        {/* Valeur — style identique à NotebookField input */}
         <input
           type="text"
           value={field.value}
           onChange={(e) => onChangeValue(index, e.target.value)}
           placeholder="Valeur…"
-          className="bg-transparent border-b border-[var(--border)] focus:border-amber-500 outline-none py-1 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors w-full font-[Georgia,serif]"
+          className="w-full bg-transparent border-b-2 border-[var(--border)] focus:border-amber-500 outline-none py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors font-[Georgia,serif]"
         />
       </div>
+
       <button
         onClick={() => onDelete(index)}
-        className="p-1 rounded text-[var(--text-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all mt-1 shrink-0"
+        className="p-1 mt-4 rounded text-[var(--text-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all shrink-0"
+        title="Supprimer ce champ"
       >
         <X size={13} />
       </button>
@@ -116,6 +140,8 @@ export default function PersonNotebook({
   const [details,  setDetails]  = useState<Details>(initialDetails ?? EMPTY)
   const [saving,   setSaving]   = useState(false)
   const [saved,    setSaved]    = useState(false)
+  const [dragIdx,  setDragIdx]  = useState<number | null>(null)
+  const [overIdx,  setOverIdx]  = useState<number | null>(null)
   const detailsRef = useRef(details)
   detailsRef.current = details
 
@@ -146,7 +172,6 @@ export default function PersonNotebook({
     setTimeout(() => setSaved(false), 2000)
   }, [personId, userId])
 
-  // Déclencher l'auto-save sur changement debounced
   useEffect(() => {
     save(debouncedDetails)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -173,6 +198,34 @@ export default function PersonNotebook({
 
   function deleteCustomField(i: number) {
     setField('custom_fields', details.custom_fields.filter((_, idx) => idx !== i))
+  }
+
+  // ── Drag & drop handlers ───────────────────────────────────────
+  function handleDragStart(i: number) {
+    setDragIdx(i)
+  }
+
+  function handleDragOver(e: React.DragEvent, i: number) {
+    e.preventDefault()
+    setOverIdx(i)
+  }
+
+  function handleDrop(targetIdx: number) {
+    if (dragIdx === null || dragIdx === targetIdx) { resetDrag(); return }
+    const reordered = [...details.custom_fields]
+    const [moved]   = reordered.splice(dragIdx, 1)
+    reordered.splice(targetIdx, 0, moved)
+    setField('custom_fields', reordered)
+    resetDrag()
+  }
+
+  function handleDragEnd() {
+    resetDrag()
+  }
+
+  function resetDrag() {
+    setDragIdx(null)
+    setOverIdx(null)
   }
 
   // ── Render ────────────────────────────────────────────────────
@@ -280,15 +333,21 @@ export default function PersonNotebook({
                 <span className="h-px flex-1 bg-amber-500/20" />
               </h3>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
                 {details.custom_fields.map((field, i) => (
                   <CustomFieldRow
                     key={i}
                     field={field}
                     index={i}
+                    total={details.custom_fields.length}
                     onChangeName={updateCustomName}
                     onChangeValue={updateCustomValue}
                     onDelete={deleteCustomField}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onDragEnd={handleDragEnd}
+                    isDragOver={overIdx === i && dragIdx !== i}
                   />
                 ))}
               </div>

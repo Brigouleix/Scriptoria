@@ -15,9 +15,9 @@ import { pipeline, env } from '@huggingface/transformers'
 env.allowLocalModels   = false
 env.useBrowserCache    = true   // mise en cache IndexedDB après le 1er téléchargement
 
-const MODEL_ID        = 'HuggingFaceTB/SmolLM2-1.7B-Instruct'
+const MODEL_ID        = 'HuggingFaceTB/SmolLM2-360M-Instruct'  // 360M = ~4× plus rapide que 1.7B
 const MAX_CHUNK_WORDS = 380   // ~512 tokens — fenêtre de contexte sécurisée
-const MAX_NEW_TOKENS  = 180   // longueur max du résumé par chunk
+const MAX_NEW_TOKENS  = 160   // légèrement réduit pour la vitesse
 
 // ── Types ────────────────────────────────────────────────────────
 export type WorkerInput =

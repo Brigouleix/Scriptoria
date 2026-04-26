@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export type NodeType = 'protagonist' | 'antagonist' | 'secondary' | 'team' | 'location' | 'add'
 
@@ -10,6 +11,12 @@ export interface WheelNode {
   sublabel?: string
   type: NodeType
   href?: string
+}
+
+export interface WheelLink {
+  person_a_id: string
+  person_b_id: string
+  relationship?: string
 }
 
 const TYPE_COLOR: Record<NodeType, string> = {
@@ -46,13 +53,16 @@ export default function PersonaWheel({
   centerLabel,
   editHref,
   onNodeClick,
+  links = [],
 }: {
   nodes: WheelNode[]
   centerLabel: string
   editHref?: string
   onNodeClick?: () => void
+  links?: WheelLink[]
 }) {
   const [hovered, setHovered] = useState<string | null>(null)
+  const router = useRouter()
 
   const MIN_NODES = 5
   const filled: WheelNode[] = [...nodes]
@@ -107,6 +117,36 @@ export default function PersonaWheel({
             />
           ))}
 
+          {/* Liens entre personnages */}
+          {links.map((link, i) => {
+            const a = positioned.find((n) => n.id === link.person_a_id)
+            const b = positioned.find((n) => n.id === link.person_b_id)
+            if (!a || !b || a.type === 'add' || b.type === 'add') return null
+            const mx = (a.x + b.x) / 2
+            const my = (a.y + b.y) / 2
+            return (
+              <g key={`cl-${i}`}>
+                <line
+                  x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                  stroke="#f59e0b"
+                  strokeWidth={1.5}
+                  strokeDasharray="5 3"
+                  opacity={0.55}
+                />
+                {link.relationship && (
+                  <text
+                    x={mx} y={my}
+                    textAnchor="middle" dominantBaseline="middle"
+                    fill="#f59e0b" fontSize={8} opacity={0.75}
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {link.relationship.length > 10 ? link.relationship.slice(0, 9) + '…' : link.relationship}
+                  </text>
+                )}
+              </g>
+            )
+          })}
+
           {/* Center node */}
           <circle cx={CX} cy={CY} r={CENTER_R + 6} fill="url(#center-grad)" opacity={0.15} />
           <circle cx={CX} cy={CY} r={CENTER_R} fill="url(#center-grad)" />
@@ -123,12 +163,20 @@ export default function PersonaWheel({
             const isAdd = node.type === 'add'
             const isHov = hovered === node.id
             const color = TYPE_COLOR[node.type]
+            const isClickable = !isAdd && !!node.href
 
             return (
               <g
                 key={node.id}
                 onMouseEnter={() => setHovered(node.id)}
                 onMouseLeave={() => setHovered(null)}
+                onClick={(e) => {
+                  if (isClickable) {
+                    e.stopPropagation()
+                    router.push(node.href!)
+                  }
+                }}
+                style={{ cursor: isClickable ? 'pointer' : isAdd ? 'pointer' : 'default' }}
               >
                 {isHov && !isAdd && (
                   <circle cx={node.x} cy={node.y} r={NODE_R + 10} fill={color} opacity={0.2} />

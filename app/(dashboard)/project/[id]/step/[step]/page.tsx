@@ -71,8 +71,9 @@ export default async function StepPage({
 
   const { data: project } = await supabase
     .from('projects')
-    .select('id, title, project_type')
+    .select('id, title, project_type, user_id')
     .eq('id', id)
+    .eq('user_id', user.id)   // vérification de propriété explicite
     .single()
 
   if (!project) notFound()

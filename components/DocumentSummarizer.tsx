@@ -3,9 +3,13 @@
 import { useCallback, useRef, useState } from 'react'
 import {
   Upload, FileText, Loader2, CheckCircle, AlertCircle,
-  X, ChevronDown, ChevronUp, Cpu, Languages,
+  X, ChevronDown, ChevronUp, Cpu, Languages, Save, FolderOpen,
 } from 'lucide-react'
 import { useLocalLLM } from '@/hooks/useLocalLLM'
+import { createClient } from '@/lib/supabase/client'
+
+interface Project  { id: string; title: string }
+interface Chapter  { id: string; title: string }
 
 // ── Types ────────────────────────────────────────────────────────
 const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.txt', '.md']
@@ -50,7 +54,13 @@ function StageIcon({ stage }: { stage: string }) {
 }
 
 // ── Main Component ───────────────────────────────────────────────
-export default function DocumentSummarizer() {
+export default function DocumentSummarizer({
+  userId,
+  projects,
+}: {
+  userId: string
+  projects: Project[]
+}) {
   const { stage, progress, progressMsg, chunkResults, summary, error, wordCount, summarize, reset } =
     useLocalLLM()
 
@@ -60,6 +70,100 @@ export default function DocumentSummarizer() {
   const [showChunks,      setShowChunks]      = useState(false)
   const [fileError,       setFileError]       = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // ── Sauvegarde ────────────────────────────────────────────────
+  const [showSave,       setShowSave]       = useState(false)
+  const [saveName,       setSaveName]       = useState('')
+  const [saveProjectId,  setSaveProjectId]  = useState('')
+  const [saveChapterId,  setSaveChapterId]  = useState('')
+  const [chapters,       setChapters]       = useState<Chapter[]>([])
+  const [loadingChapters,setLoadingChapters]= useState(false)
+  const [saving,         setSaving]         = useState(false)
+  const [saveSuccess,    setSaveSuccess]    = useState(false)
+  const [saveError,      setSaveError]      = useState<string | null>(null)
+
+  async function handleProjectChange(projectId: string) {
+    setSaveProjectId(projectId)
+    setSaveChapterId('')
+    setChapters([])
+    if (!projectId) return
+    setLoadingChapters(true)
+    const { data } = await createClient()
+      .from('chapters')
+      .select('id, title')
+      .eq('project_id', projectId)
+      .order('position', { ascending: true })
+    setChapters(data ?? [])
+    setLoadingChapters(false)
+  }
+
+  async function handleSave() {
+    if (!summary || !saveName.trim() || !saveProjectId) return
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const supabase = createClient()
+
+      // Si pas de chapitre choisi → trouve ou crée "Général"
+      let chapterId = saveChapterId
+      if (!chapterId) {
+        const { data: existing } = await supabase
+          .from('chapters')
+          .select('id')
+          .eq('project_id', saveProjectId)
+          .eq('title', 'Général')
+          .single()
+
+        if (existing) {
+          chapterId = existing.id
+        } else {
+          const { data: created, error: chapErr } = await supabase
+            .from('chapters')
+            .insert({ project_id: saveProjectId, title: 'Général', position: 0 })
+            .select('id')
+            .single()
+          if (chapErr) throw chapErr
+          chapterId = created!.id
+        }
+      }
+
+      const blob     = new Blob([summary], { type: 'text/plain; charset=utf-8' })
+      const fileName = `${saveName.trim().replace(/[^a-zA-Z0-9\-_ ]/g, '')}.txt`
+      const path     = `${userId}/${saveProjectId}/${chapterId}/resumeIA-${Date.now()}-${fileName}`
+
+      const { error: uploadErr } = await supabase.storage
+        .from('documents')
+        .upload(path, blob, { contentType: 'text/plain', upsert: false })
+      if (uploadErr) throw uploadErr
+
+      const { error: dbErr } = await supabase.from('documents').insert({
+        chapter_id:   chapterId,
+        project_id:   saveProjectId,
+        name:         saveName.trim(),
+        storage_path: path,
+        mime_type:    'text/plain',
+        size_bytes:   blob.size,
+      })
+      if (dbErr) throw dbErr
+
+      setSaveSuccess(true)
+      setTimeout(() => { setShowSave(false); setSaveSuccess(false) }, 2000)
+    } catch (e: any) {
+      setSaveError(e?.message ?? 'Erreur lors de la sauvegarde.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function openSave() {
+    setSaveName(selectedFile ? selectedFile.name.replace(/\.[^.]+$/, '') + ' — résumé IA' : 'Résumé IA')
+    setSaveProjectId('')
+    setSaveChapterId('')
+    setChapters([])
+    setSaveSuccess(false)
+    setSaveError(null)
+    setShowSave(true)
+  }
 
   const handleFile = useCallback((file: File) => {
     setFileError(null)
@@ -252,18 +356,119 @@ export default function DocumentSummarizer() {
               <CheckCircle size={15} className="text-green-500" />
               <span className="font-semibold text-sm text-[var(--text-primary)]">Résumé final</span>
             </div>
-            <button
-              onClick={handleReset}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-            >
-              Nouveau document
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={openSave}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors"
+              >
+                <Save size={12} />
+                Sauvegarder
+              </button>
+              <button
+                onClick={handleReset}
+                className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                Nouveau document
+              </button>
+            </div>
           </div>
 
           {/* Résumé */}
           <div className="px-5 py-4">
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{summary}</p>
           </div>
+
+          {/* ── Formulaire de sauvegarde ── */}
+          {showSave && (
+            <div className="border-t border-amber-500/30 bg-amber-500/5 px-5 py-4 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <FolderOpen size={14} className="text-amber-500" />
+                <p className="text-xs font-semibold text-[var(--text-primary)]">Sauvegarder dans Productions écrites</p>
+                <button
+                  onClick={() => setShowSave(false)}
+                  className="ml-auto text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+
+              {/* Nom */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                  Nom du document
+                </label>
+                <input
+                  type="text"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                  placeholder="Mon résumé IA…"
+                  className="w-full bg-[var(--bg-input)] border border-[var(--border)] focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Projet */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                    Projet
+                  </label>
+                  <select
+                    value={saveProjectId}
+                    onChange={(e) => handleProjectChange(e.target.value)}
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors"
+                  >
+                    <option value="">— Choisir —</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Chapitre (optionnel) */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                    Chapitre <span className="normal-case font-normal">(optionnel)</span>
+                  </label>
+                  <select
+                    value={saveChapterId}
+                    onChange={(e) => setSaveChapterId(e.target.value)}
+                    disabled={!saveProjectId || loadingChapters}
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors disabled:opacity-40"
+                  >
+                    <option value="">{loadingChapters ? 'Chargement…' : '— Général —'}</option>
+                    {chapters.map((ch) => (
+                      <option key={ch.id} value={ch.id}>{ch.title}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Erreur sauvegarde */}
+              {saveError && (
+                <p className="text-xs text-red-400 flex items-center gap-1.5">
+                  <AlertCircle size={12} />
+                  {saveError}
+                </p>
+              )}
+
+              {/* Bouton */}
+              {saveSuccess ? (
+                <div className="flex items-center gap-2 text-green-500 text-sm font-medium">
+                  <CheckCircle size={15} />
+                  Document sauvegardé !
+                </div>
+              ) : (
+                <button
+                  onClick={handleSave}
+                  disabled={!saveName.trim() || !saveProjectId || saving}
+                  className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors"
+                >
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                  {saving ? 'Sauvegarde…' : 'Enregistrer'}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Résumés partiels (accordion) */}
           {chunkResults.length > 1 && (

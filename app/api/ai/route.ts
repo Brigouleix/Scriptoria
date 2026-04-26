@@ -54,11 +54,13 @@ Ne dépasse pas 300 mots sauf si explicitement demandé.`
     })
   } catch (err: unknown) {
     const status = (err as { status?: number }).status ?? 500
-    let message = 'Erreur lors de la requête IA.'
-    if (status === 401) message = 'Clé Groq invalide. Vérifie GROQ_API_KEY dans .env.local.'
-    if (status === 429) message = 'Limite de taux Groq atteinte. Réessaie dans quelques secondes.'
-    return new Response(message, {
-      status: 200,
+    // Logger côté serveur uniquement (ne jamais exposer les détails au client)
+    console.error('[AI route] Groq error:', { status, message: (err as { message?: string }).message })
+    const clientMessage = status === 429
+      ? 'Limite de requêtes atteinte. Réessaie dans quelques secondes.'
+      : 'Une erreur est survenue. Réessaie plus tard.'
+    return new Response(clientMessage, {
+      status,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
   }
